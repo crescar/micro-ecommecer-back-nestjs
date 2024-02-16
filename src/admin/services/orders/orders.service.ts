@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Order } from 'src/Schemas/orders.schema';
+import { Delivery, DeliveryRequestDTO } from 'src/Schemas/deliveries.schema';
 import { PaginationResponse } from 'src/responses/pagination';
 import Response from 'src/responses/response';
 
@@ -9,7 +10,8 @@ import Response from 'src/responses/response';
 export class OrdersService {
     
     constructor(
-        @InjectModel(Order.name) private readonly orderModel: Model<Order> 
+        @InjectModel(Order.name) private readonly orderModel: Model<Order>,
+        @InjectModel(Delivery.name) private readonly deliveryModel: Model<Delivery>
     ){}
 
 
@@ -47,11 +49,32 @@ export class OrdersService {
         }
     }
 
-    async updateDelivery(id: string, delivery: boolean): Promise<Response<null>>{
+    async updateDelivery(id: string, data: DeliveryRequestDTO): Promise<Response<null>>{
         try {
-            await this.orderModel.findByIdAndUpdate(id,{
-                delivery: delivery 
-            })
+            const order = await this.orderModel.findByIdAndUpdate(id,{
+                delivery: data.delivery
+            }).exec()
+            const getDelivery = await this.deliveryModel.findOne({
+                orderId: id
+            }).exec()
+            if(data.delivery){
+                const delivery = {
+                    orderId:id,
+                    direction: order.directionDelivery,
+                    deliveryDate: data.deliveryDate,
+                    arriveDate: data.arriveDate
+                }
+                if(getDelivery){
+                    await this.deliveryModel.findByIdAndUpdate(getDelivery.id,delivery).exec()
+                }else{
+                    await this.deliveryModel.create(delivery)
+                }
+            }
+            if(!data.delivery){
+                if(getDelivery){
+                    await this.deliveryModel.findByIdAndDelete(getDelivery.id)
+                }
+            }
             return new Response(true, null,'status order update')
         } catch (error) {
             throw new HttpException(new Response(false,null,error.message), HttpStatus.BAD_REQUEST);

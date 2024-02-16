@@ -5,6 +5,7 @@ import { PaginationResponse } from 'src/responses/pagination';
 import { SecurityGuardAdmin } from 'src/security/securityAdmin.guard';
 import Response from 'src/responses/response';
 import { OrdersService } from 'src/admin/services/orders/orders.service';
+import { DeliveryRequestDTO } from 'src/Schemas/deliveries.schema';
 
 @Controller('admin/orders')
 @UseGuards(SecurityGuardAdmin)
@@ -48,23 +49,13 @@ export class OrdersController {
 
     @Put(':id')
     @ApiBody({
-        schema:{
-            type:'object',
-            example:{
-                delivery: false
-            },
-            properties:{
-                delivery: {
-                    type:'boolean'
-                }
-            }
-        }
+        type: DeliveryRequestDTO
     })
     @ApiResponse({
         type: Response<null>
     })
-    async updateDelivery(@Param('id') id: string, @Body() data: {delivery:boolean}): Promise<Response<null>>{
-        return await this.orderService.updateDelivery(id, data.delivery);
+    async updateDelivery(@Param('id') id: string, @Body() data: DeliveryRequestDTO): Promise<Response<null>>{
+        return await this.orderService.updateDelivery(id, data);
     }
 
 

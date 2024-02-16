@@ -40,7 +40,7 @@ export class Order {
         required: true,
         default: false,
     })
-    delivey?: boolean
+    delivery?: boolean
 
     @Prop({
         required: true,

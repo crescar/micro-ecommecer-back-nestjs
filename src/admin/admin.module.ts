@@ -13,6 +13,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { CategorySchema, Category } from '../Schemas/categories.schema';
 import { OrderSchema, Order } from '../Schemas/orders.schema';
 import { Product, ProductSchema } from '../Schemas/products.schema';
+import { Delivery, DeliverySchema } from 'src/Schemas/deliveries.schema';
 
 @Module({
   imports:[
@@ -28,6 +29,10 @@ import { Product, ProductSchema } from '../Schemas/products.schema';
       {
         schema: ProductSchema,
         name: Product.name
+      },
+      {
+        schema: DeliverySchema,
+        name: Delivery.name
       }
     ])
   ],
